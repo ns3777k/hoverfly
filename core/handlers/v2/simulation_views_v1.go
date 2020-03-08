@@ -45,6 +45,9 @@ func (this ResponseDetailsView) GetBody() string { return this.Body }
 // Gets BodyFile - required for interfaces.Response
 func (this ResponseDetailsView) GetBodyFile() string { return "" }
 
+// Gets FixedDelay - required for interfaces.Response
+func (this ResponseDetailsView) GetFixedDelay() int { return 0 }
+
 // Gets EncodedBody - required for interfaces.Response
 func (this ResponseDetailsView) GetEncodedBody() bool { return this.EncodedBody }
 

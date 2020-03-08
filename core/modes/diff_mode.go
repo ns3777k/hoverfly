@@ -49,7 +49,7 @@ func (this *DiffMode) SetArguments(arguments ModeArguments) {
 }
 
 //TODO: We should only need one of these two parameters
-func (this *DiffMode) Process(request *http.Request, details models.RequestDetails) (*http.Response, error) {
+func (this *DiffMode) Process(request *http.Request, details models.RequestDetails) (ProcessResult, error) {
 	this.DiffReport = v2.DiffReport{Timestamp: time.Now().Format(time.RFC3339)}
 
 	actualPair := models.RequestResponsePair{
@@ -97,8 +97,8 @@ func (this *DiffMode) Process(request *http.Request, details models.RequestDetai
 			"url":    modifiedRequest.URL,
 		}).Info("There was no simulation matched for the request")
 	}
-
-	return actualResponse, nil
+	// TODO: is actualPair nil?
+	return newProcessResult(actualResponse, actualPair.Response.FixedDelay), nil
 }
 
 func (this *DiffMode) diffResponse(expected *models.ResponseDetails, actual *models.ResponseDetails, headersBlacklist []string) {

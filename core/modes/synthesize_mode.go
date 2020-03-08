@@ -27,7 +27,7 @@ func (this *SynthesizeMode) View() v2.ModeView {
 	}
 }
 
-func (this SynthesizeMode) Process(request *http.Request, details models.RequestDetails) (*http.Response, error) {
+func (this SynthesizeMode) Process(request *http.Request, details models.RequestDetails) (ProcessResult, error) {
 	pair := models.RequestResponsePair{Request: details}
 
 	log.WithFields(log.Fields{

@@ -189,23 +189,41 @@ func (hf *Hoverfly) processRequest(req *http.Request) *http.Response {
 	}
 	requestDetails, err := models.NewRequestDetailsFromHttpRequest(req)
 	if err != nil {
-		return modes.ErrorResponse(req, err, "Could not interpret HTTP request")
+		return modes.ErrorResponse(req, err, "Could not interpret HTTP request").Response
 	}
 
 	modeName := hf.Cfg.GetMode()
 	mode := hf.modeMap[modeName]
-	response, err := mode.Process(req, requestDetails)
+	result, err := mode.Process(req, requestDetails)
 
 	if err == nil && hf.Cfg.CORS.Enabled {
-		hf.Cfg.CORS.AddCORSHeaders(req, response)
+		hf.Cfg.CORS.AddCORSHeaders(req, result.Response)
 	}
 
 	// and definitely don't delay people in capture mode
 	// Don't delete the error
 	if err != nil || modeName == modes.Capture {
-		return response
+		return result.Response
 	}
 
+	if result.IsDelayable() {
+		hf.applyResponseDelays(result)
+	} else {
+		hf.applyGlobalDelay(requestDetails)
+	}
+
+	return result.Response
+}
+
+func (hf *Hoverfly) applyResponseDelays(result modes.ProcessResult) {
+	if result.FixedDelay > 0 {
+		//
+	}
+
+	// ...
+}
+
+func (hf *Hoverfly) applyGlobalDelay(requestDetails models.RequestDetails) {
 	respDelay := hf.Simulation.ResponseDelays.GetDelay(requestDetails)
 	if respDelay != nil {
 		respDelay.Execute()
@@ -215,6 +233,4 @@ func (hf *Hoverfly) processRequest(req *http.Request) *http.Response {
 	if respDelayLogNormal != nil {
 		respDelayLogNormal.Execute()
 	}
-
-	return response
 }

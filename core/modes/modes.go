@@ -33,8 +33,17 @@ const Spy = "spy"
 // DiffMode - calls real service and compares response with simulation
 const Diff = "diff"
 
+type ProcessResult struct {
+	Response *http.Response
+	FixedDelay int
+}
+
+func (p ProcessResult) IsDelayable() bool {
+	return p.FixedDelay > 0
+}
+
 type Mode interface {
-	Process(*http.Request, models.RequestDetails) (*http.Response, error)
+	Process(*http.Request, models.RequestDetails) (ProcessResult, error)
 	SetArguments(arguments ModeArguments)
 	View() v2.ModeView
 }
@@ -44,6 +53,10 @@ type ModeArguments struct {
 	MatchingStrategy   *string
 	Stateful           bool
 	OverwriteDuplicate bool
+}
+
+func newProcessResult(response *http.Response, fixedDelay int) ProcessResult {
+	return ProcessResult{Response: response, FixedDelay: fixedDelay}
 }
 
 // ReconstructRequest replaces original request with details provided in Constructor Payload.RequestMatcher
@@ -77,7 +90,7 @@ func ReconstructRequest(pair models.RequestResponsePair) (*http.Request, error) 
 }
 
 // ReconstructResponse changes original response with details provided in Constructor Payload.Response
-func ReconstructResponse(request *http.Request, pair models.RequestResponsePair) *http.Response {
+func ReconstructResponse(request *http.Request, pair models.RequestResponsePair) ProcessResult {
 	response := &http.Response{}
 	response.Request = request
 
@@ -108,7 +121,7 @@ func ReconstructResponse(request *http.Request, pair models.RequestResponsePair)
 		response.Header.Set("Content-Length", fmt.Sprintf("%v", response.ContentLength))
 	}
 
-	return response
+	return newProcessResult(response, pair.Response.FixedDelay)
 }
 
 func GetRequestLogFields(request *models.RequestDetails) *logrus.Fields {
@@ -143,7 +156,7 @@ func GetResponseLogFields(response *models.ResponseDetails) *logrus.Fields {
 	}
 }
 
-func ReturnErrorAndLog(request *http.Request, err error, pair *models.RequestResponsePair, msg, mode string) (*http.Response, error) {
+func ReturnErrorAndLog(request *http.Request, err error, pair *models.RequestResponsePair, msg, mode string) (ProcessResult, error) {
 	log.WithFields(log.Fields{
 		"error":    err.Error(),
 		"mode":     mode,
@@ -154,8 +167,7 @@ func ReturnErrorAndLog(request *http.Request, err error, pair *models.RequestRes
 	return ErrorResponse(request, err, msg), err
 }
 
-func ErrorResponse(req *http.Request, err error, msg string) *http.Response {
-	return goproxy.NewResponse(req,
-		goproxy.ContentTypeText, http.StatusBadGateway,
-		fmt.Sprintf("Hoverfly Error!\n\n%s\n\nGot error: %s", msg, err.Error()))
+func ErrorResponse(req *http.Request, err error, msg string) ProcessResult {
+	return newProcessResult(goproxy.NewResponse(req, goproxy.ContentTypeText, http.StatusBadGateway,
+		fmt.Sprintf("Hoverfly Error!\n\n%s\n\nGot error: %s", msg, err.Error())), 0)
 }

@@ -36,7 +36,7 @@ func (this *SimulateMode) SetArguments(arguments ModeArguments) {
 }
 
 //TODO: We should only need one of these two parameters
-func (this SimulateMode) Process(request *http.Request, details models.RequestDetails) (*http.Response, error) {
+func (this SimulateMode) Process(request *http.Request, details models.RequestDetails) (ProcessResult, error) {
 	pair := models.RequestResponsePair{
 		Request: details,
 	}

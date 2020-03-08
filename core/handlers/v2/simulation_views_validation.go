@@ -611,6 +611,9 @@ var responseDefinitionV6 = map[string]interface{}{
 		"bodyFile": map[string]interface{}{
 			"type": "string",
 		},
+		"fixedDelay": map[string]interface{}{
+			"type": "integer",
+		},
 		"encodedBody": map[string]interface{}{
 			"type": "boolean",
 		},

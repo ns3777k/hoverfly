@@ -40,7 +40,7 @@ func (this *SpyMode) SetArguments(arguments ModeArguments) {
 }
 
 //TODO: We should only need one of these two parameters
-func (this SpyMode) Process(request *http.Request, details models.RequestDetails) (*http.Response, error) {
+func (this SpyMode) Process(request *http.Request, details models.RequestDetails) (ProcessResult, error) {
 	pair := models.RequestResponsePair{
 		Request: details,
 	}
@@ -53,10 +53,11 @@ func (this SpyMode) Process(request *http.Request, details models.RequestDetails
 		if err != nil {
 			return ReturnErrorAndLog(request, err, &pair, "There was an error when reconstructing the request.", Spy)
 		}
+
 		response, err := this.Hoverfly.DoRequest(modifiedRequest)
 		if err == nil {
 			log.Info("Going to return response from real server")
-			return response, nil
+			return newProcessResult(response, 0), nil
 		} else {
 			return ReturnErrorAndLog(request, err, &pair, "There was an error when forwarding the request to the intended destination", Spy)
 		}
