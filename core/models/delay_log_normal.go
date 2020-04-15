@@ -11,14 +11,18 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type DelayLogNormalSettings struct {
+	Min    int `json:"min"`
+	Max    int `json:"max"`
+	Mean   int `json:"mean"`
+	Median int `json:"median"`
+}
+
 type ResponseDelayLogNormal struct {
 	UrlPattern     string         `json:"urlPattern"`
 	HttpMethod     string         `json:"httpMethod"`
-	Min            int            `json:"min"`
-	Max            int            `json:"max"`
-	Mean           int            `json:"mean"`
-	Median         int            `json:"median"`
 	DelayGenerator DelayGenerator `json:"-"`
+	DelayLogNormalSettings
 }
 
 type ResponseDelayLogNormalList []ResponseDelayLogNormal
@@ -106,10 +110,12 @@ func (this ResponseDelayLogNormalList) ConvertToResponseDelayLogNormalPayloadVie
 		responseDelayLogNormalView := v1.ResponseDelayLogNormalView{
 			UrlPattern: responseDelayLogNormal.UrlPattern,
 			HttpMethod: responseDelayLogNormal.HttpMethod,
-			Min:        responseDelayLogNormal.Min,
-			Max:        responseDelayLogNormal.Max,
-			Mean:       responseDelayLogNormal.Mean,
-			Median:     responseDelayLogNormal.Median,
+			DelayLogNormalSettings: DelayLogNormalSettings{
+				Min:    responseDelayLogNormal.Min,
+				Max:    responseDelayLogNormal.Max,
+				Mean:   responseDelayLogNormal.Mean,
+				Median: responseDelayLogNormal.Median,
+			},
 		}
 
 		payloadView.Data = append(payloadView.Data, responseDelayLogNormalView)

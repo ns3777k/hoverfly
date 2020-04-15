@@ -5,6 +5,7 @@ import (
 	"github.com/SpectoLabs/goproxy"
 	"github.com/SpectoLabs/hoverfly/core/authentication/backends"
 	"github.com/SpectoLabs/hoverfly/core/cache"
+	"github.com/SpectoLabs/hoverfly/core/delay"
 	"github.com/SpectoLabs/hoverfly/core/handlers/v2"
 	"github.com/SpectoLabs/hoverfly/core/journal"
 	"github.com/SpectoLabs/hoverfly/core/matching"
@@ -17,6 +18,7 @@ import (
 	"net"
 	"net/http"
 	"sync"
+	"time"
 )
 
 // Hoverfly provides access to hoverfly - updating/starting/stopping proxy, http client and configuration, cache access
@@ -217,10 +219,15 @@ func (hf *Hoverfly) processRequest(req *http.Request) *http.Response {
 
 func (hf *Hoverfly) applyResponseDelays(result modes.ProcessResult) {
 	if result.FixedDelay > 0 {
-		//
+		time.Sleep(time.Duration(result.FixedDelay) * time.Millisecond)
 	}
 
-	// ...
+	if result.LogNormalDelay != nil {
+		d := delay.NewLogNormalGenerator(result.LogNormalDelay.Min, result.LogNormalDelay.Max,
+			result.LogNormalDelay.Mean, result.LogNormalDelay.Median).GenerateDelay()
+
+		time.Sleep(time.Duration(d) * time.Millisecond)
+	}
 }
 
 func (hf *Hoverfly) applyGlobalDelay(requestDetails models.RequestDetails) {

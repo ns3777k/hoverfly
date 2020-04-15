@@ -36,10 +36,11 @@ const Diff = "diff"
 type ProcessResult struct {
 	Response *http.Response
 	FixedDelay int
+	LogNormalDelay *models.DelayLogNormalSettings
 }
 
 func (p ProcessResult) IsDelayable() bool {
-	return p.FixedDelay > 0
+	return p.FixedDelay > 0 || p.LogNormalDelay != nil
 }
 
 type Mode interface {
@@ -55,8 +56,8 @@ type ModeArguments struct {
 	OverwriteDuplicate bool
 }
 
-func newProcessResult(response *http.Response, fixedDelay int) ProcessResult {
-	return ProcessResult{Response: response, FixedDelay: fixedDelay}
+func newProcessResult(response *http.Response, fixedDelay int, logNormalDelay *models.DelayLogNormalSettings) ProcessResult {
+	return ProcessResult{Response: response, FixedDelay: fixedDelay, LogNormalDelay: logNormalDelay}
 }
 
 // ReconstructRequest replaces original request with details provided in Constructor Payload.RequestMatcher
@@ -121,7 +122,7 @@ func ReconstructResponse(request *http.Request, pair models.RequestResponsePair)
 		response.Header.Set("Content-Length", fmt.Sprintf("%v", response.ContentLength))
 	}
 
-	return newProcessResult(response, pair.Response.FixedDelay)
+	return newProcessResult(response, pair.Response.FixedDelay, pair.Response.LogNormalDelay)
 }
 
 func GetRequestLogFields(request *models.RequestDetails) *logrus.Fields {
@@ -169,5 +170,5 @@ func ReturnErrorAndLog(request *http.Request, err error, pair *models.RequestRes
 
 func ErrorResponse(req *http.Request, err error, msg string) ProcessResult {
 	return newProcessResult(goproxy.NewResponse(req, goproxy.ContentTypeText, http.StatusBadGateway,
-		fmt.Sprintf("Hoverfly Error!\n\n%s\n\nGot error: %s", msg, err.Error())), 0)
+		fmt.Sprintf("Hoverfly Error!\n\n%s\n\nGot error: %s", msg, err.Error())), 0, nil)
 }

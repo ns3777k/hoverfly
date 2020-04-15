@@ -195,6 +195,7 @@ type ResponseDetails struct {
 	TransitionsState map[string]string
 	RemovesState     []string
 	FixedDelay       int
+	LogNormalDelay   *DelayLogNormalSettings
 }
 
 func NewResponseDetailsFromResponse(data interfaces.Response) ResponseDetails {
@@ -214,6 +215,7 @@ func NewResponseDetailsFromResponse(data interfaces.Response) ResponseDetails {
 		TransitionsState: data.GetTransitionsState(),
 		RemovesState:     data.GetRemovesState(),
 		FixedDelay:       data.GetFixedDelay(),
+		LogNormalDelay:   data.GetLogNormalDelay(),
 	}
 }
 
@@ -286,6 +288,7 @@ func (r *ResponseDetails) ConvertToResponseDetailsViewV6() v2.ResponseDetailsVie
 		RemovesState:     r.RemovesState,
 		TransitionsState: r.TransitionsState,
 		FixedDelay:       r.FixedDelay,
+		LogNormalDelay:   r.LogNormalDelay,
 	}
 }
 

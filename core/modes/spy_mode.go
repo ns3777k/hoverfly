@@ -57,7 +57,7 @@ func (this SpyMode) Process(request *http.Request, details models.RequestDetails
 		response, err := this.Hoverfly.DoRequest(modifiedRequest)
 		if err == nil {
 			log.Info("Going to return response from real server")
-			return newProcessResult(response, 0), nil
+			return newProcessResult(response, 0, nil), nil
 		} else {
 			return ReturnErrorAndLog(request, err, &pair, "There was an error when forwarding the request to the intended destination", Spy)
 		}

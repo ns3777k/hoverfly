@@ -2,6 +2,7 @@ package v2
 
 import (
 	"github.com/SpectoLabs/hoverfly/core/interfaces"
+	"github.com/SpectoLabs/hoverfly/core/models"
 	"github.com/SpectoLabs/hoverfly/core/util"
 )
 
@@ -47,6 +48,9 @@ func (this ResponseDetailsView) GetBodyFile() string { return "" }
 
 // Gets FixedDelay - required for interfaces.Response
 func (this ResponseDetailsView) GetFixedDelay() int { return 0 }
+
+// Gets LogNormalDelay - required for interfaces.Response
+func (this ResponseDetailsView) GetLogNormalDelay() *models.DelayLogNormalSettings { return nil }
 
 // Gets EncodedBody - required for interfaces.Response
 func (this ResponseDetailsView) GetEncodedBody() bool { return this.EncodedBody }

@@ -2,6 +2,7 @@ package v2
 
 import (
 	"github.com/SpectoLabs/hoverfly/core/interfaces"
+	"github.com/SpectoLabs/hoverfly/core/models"
 )
 
 type SimulationViewV5 struct {
@@ -78,3 +79,6 @@ func (this ResponseDetailsViewV5) GetHeaders() map[string][]string { return this
 
 // Gets FixedDelay - required for interfaces.Response
 func (this ResponseDetailsViewV5) GetFixedDelay() int { return 0 }
+
+// Gets LogNormalDelay - required for interfaces.Response
+func (this ResponseDetailsViewV5) GetLogNormalDelay() *models.DelayLogNormalSettings { return nil }
