@@ -209,7 +209,7 @@ func (hf *Hoverfly) processRequest(req *http.Request) *http.Response {
 	}
 
 	if result.IsDelayable() {
-		hf.applyResponseDelays(result)
+		hf.applyResponseDelay(result)
 	} else {
 		hf.applyGlobalDelay(requestDetails)
 	}
@@ -217,7 +217,7 @@ func (hf *Hoverfly) processRequest(req *http.Request) *http.Response {
 	return result.Response
 }
 
-func (hf *Hoverfly) applyResponseDelays(result modes.ProcessResult) {
+func (hf *Hoverfly) applyResponseDelay(result modes.ProcessResult) {
 	if result.FixedDelay > 0 {
 		time.Sleep(time.Duration(result.FixedDelay) * time.Millisecond)
 	}
